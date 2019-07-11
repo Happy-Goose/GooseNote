@@ -36,7 +36,6 @@
             </el-collapse>
           </div>
         </el-card>
-        <Info></Info>
       </el-col>
     </el-row>
   </div>

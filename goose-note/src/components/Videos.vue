@@ -7,7 +7,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="源">
+        <el-form-item label="播放源">
           <el-select v-model="videosForm.source">
             <el-option
               v-for="item in videosForm.sourceOptions"
@@ -20,7 +20,7 @@
       </el-col>
       <el-col :span="12">
         <el-form-item label="已看集数">
-          <el-input-number v-model="videosForm.alreadyWatch" controls-position="right" :min="1"></el-input-number>
+          <el-input-number v-model="videosForm.alreadyWatch" @change="handleAlreadyWatch" controls-position="right" :min="1"></el-input-number>
         </el-form-item>
       </el-col>
       <el-col :span="16">
@@ -35,9 +35,14 @@
       </el-col>
     </el-form>
 
-    <el-table :data="towatchList" border show-summary style="width: 100%">
+    <el-table :data="towatchList" border style="width: 100%">
       <el-table-column prop="name" label="名称"></el-table-column>
-      <el-table-column prop="num" label="进度"></el-table-column>
+      <el-table-column prop="source" label="播放源"></el-table-column>
+      <el-table-column label="进度">
+        <template slot-scope="scope">
+          <el-progress :text-inside="true" :stroke-width="15" :percentage="scope.row.progress"></el-progress>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="50">
         <template slot-scope="scope">
           <el-button @click="finishTowatch(scope.row.id)" type="text" size="small">完成</el-button>
@@ -54,30 +59,30 @@ export default {
     return {
       videosForm: {
         name: "",
-        source: 1,
+        source: '优酷',
         sourceOptions: [
           {
-            value: 1,
+            value: '优酷',
             label: "优酷"
           },
           {
-            value: 2,
+            value: '腾讯',
             label: "腾讯"
           },
           {
-            value: 3,
+            value: '爱奇艺',
             label: "爱奇艺"
           },
           {
-            value: 4,
+            value: 'B站',
             label: "B站"
           },
           {
-            value: 5,
+            value: '人人影视',
             label: "人人影视"
           },
           {
-            value: 6,
+            value: '需要下载',
             label: "需要下载"
           }
         ],
@@ -100,10 +105,15 @@ export default {
       let newDate = new Date();
       let tempObj = {};
       tempObj.id = newDate.getTime();
-      tempObj.content = this.todoContentInput;
+      tempObj.name = this.videosForm.name;
+      tempObj.source = this.videosForm.source;
+      tempObj.progress = parseInt(this.videosForm.alreadyWatch*100/this.videosForm.totalEpisode);
       this.towatchList.push(tempObj);
       localStorage.setItem("towatchList", JSON.stringify(this.towatchList));
-      this.todoContentInput = "";
+      this.videosForm.name = "";
+      this.videosForm.source = "优酷";
+      this.videosForm.alreadyWatch = 1;
+      this.videosForm.totalEpisode = 1;
     },
     finishTowatch(id) {
       this.towatchList.splice(
@@ -111,6 +121,10 @@ export default {
         1
       );
       localStorage.setItem("towatchList", JSON.stringify(this.towatchList));
+    },
+    handleAlreadyWatch(value) {
+      console.log(value);
+      this.videosForm.totalEpisode = value;
     }
   }
 };
